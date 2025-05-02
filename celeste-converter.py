@@ -45,7 +45,7 @@ class CelesteConverter:
         if verbose:
             print(f"Width: {width}, Height: {height}, Alpha: {has_alpha}")
 
-        index, png_index, offset = 0, 0, 9
+        index, offset = 0, 9
         while index < width * height:
             # Read RLE count
             rle_count = self.input_bytes[offset]
