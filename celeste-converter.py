@@ -65,25 +65,15 @@ class CelesteConverter:
                 a = self.input_bytes[offset]
                 offset += 1
                 if a != 0:
-                    b = self.input_bytes[offset]
-                    offset += 1
-                    g = self.input_bytes[offset]
-                    offset += 1
-                    r = self.input_bytes[offset]
-                    offset += 1
+                    b, g, r = struct.unpack("<BBB", self.input_bytes[offset:offset + 3])
+                    offset += 3
             else:
-                b = self.input_bytes[offset]
-                offset += 1
-                g = self.input_bytes[offset]
-                offset += 1
-                r = self.input_bytes[offset]
-                offset += 1
+                b, g, r = struct.unpack("<BBB", self.input_bytes[offset:offset + 3])
+                offset += 3
 
             # Output RLE Span of pixels
             for i in range(rle_count):
-                self.output_bytes.append(r)
-                self.output_bytes.append(g)
-                self.output_bytes.append(b)
+                self.output_bytes.extend([r,g,b])
                 if has_alpha:
                     self.output_bytes.append(a)
 
@@ -109,7 +99,7 @@ class CelesteConverter:
         self.output_bytes += struct.pack("<ii", width, height)
         self.output_bytes.append(1) if has_alpha else self.output_bytes.append(0)
 
-        index, offset = 0, 9
+        index = 0
         while index < width * height:
             # Get color of current pixel
             x = index % width
