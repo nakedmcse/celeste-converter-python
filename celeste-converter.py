@@ -49,6 +49,8 @@ class CelesteConverter:
         has_alpha = self.input_bytes[8] != 0
         if verbose:
             print(f"Width: {width}, Height: {height}, Alpha: {has_alpha}")
+        pixel_size = 4 if has_alpha else 3
+        self.output_bytes = bytearray((width * height) * pixel_size)
 
         index, offset = 0, 9
         while index < width * height:
@@ -72,10 +74,16 @@ class CelesteConverter:
                 offset += 3
 
             # Output RLE Span of pixels
+            out_index = 0
             for i in range(rle_count):
-                self.output_bytes.extend([r,g,b])
+                self.output_bytes[out_index] = r
+                self.output_bytes[out_index+1] = g
+                self.output_bytes[out_index+2] = b
                 if has_alpha:
-                    self.output_bytes.append(a)
+                    self.output_bytes[out_index+3] = a
+                    out_index += 4
+                else:
+                    out_index += 3
 
             index += rle_count
 
