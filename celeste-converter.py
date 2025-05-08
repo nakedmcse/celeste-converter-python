@@ -53,6 +53,7 @@ class CelesteConverter:
         self.output_bytes = bytearray((width * height) * pixel_size)
 
         index, offset = 0, 9
+        out_index = 0
         while index < width * height:
             # Read RLE count
             rle_count = self.input_bytes[offset]
@@ -74,7 +75,6 @@ class CelesteConverter:
                 offset += 3
 
             # Output RLE Span of pixels
-            out_index = 0
             for i in range(rle_count):
                 self.output_bytes[out_index] = r
                 self.output_bytes[out_index+1] = g
@@ -112,16 +112,16 @@ class CelesteConverter:
             # Get color of current pixel
             x = index % width
             y = index // width
-            pixel = self.get_pixel(x, y, width, has_alpha)
+            pixel = image.getpixel((x, y))
 
             # Look ahead at next 255 pixels for RLE
             rle_count = 1
             while True:
-                if index + rle_count > width * height:
+                if index + rle_count >= width * height:
                     break  # out of bounds
-                x2  = (index + rle_count) % width
+                x2 = (index + rle_count) % width
                 y2 = (index + rle_count) // width
-                pixel2 = self.get_pixel(x2, y2, width, has_alpha)
+                pixel2 = image.getpixel((x2, y2))
                 if pixel != pixel2:
                     break  # hit end of color run
                 if rle_count == 255:
@@ -130,11 +130,12 @@ class CelesteConverter:
 
             # Write RLE count and pixel value
             self.output_bytes.append(rle_count)
-            pixel.reverse()
-            if pixel[0] == 0:
+            out_pixel = bytearray(pixel)
+            out_pixel.reverse()
+            if has_alpha and out_pixel[0] == 0:
                 self.output_bytes.append(0)
             else:
-                self.output_bytes += pixel
+                self.output_bytes += out_pixel
             index += rle_count
 
         if target_is_folder:
