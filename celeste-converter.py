@@ -11,11 +11,6 @@ class CelesteConverter:
         self.input_bytes = bytearray()
         self.output_bytes = bytearray()
 
-    def get_pixel(self, x: int, y: int, width: int, has_alpha: bool) -> bytearray:
-        bytes_per_pixel = 4 if has_alpha else 3
-        offset = ((y * width) + x) * bytes_per_pixel
-        return self.input_bytes[offset:offset + bytes_per_pixel]
-
     def convert(self, input_path: str, output_path: str, command: str, verbose: bool = False):
         target_is_folder = os.path.isdir(output_path)
         if os.path.isdir(input_path):
